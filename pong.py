@@ -5,10 +5,10 @@ SCREEN_SIZE = (1200, 900)
 MIDDLE = (600, 450)
 MARGIN = 50
 
-BAT_SIZE = (50, 350)
+BAT_SIZE = (25, 300)
 BAT_SPEED = 10
 
-BALL_SIZE = (50, 50)
+BALL_SIZE = (20, 20)
 BAT_SPEED = 5
 
 RGB_BLACK = (0, 0, 0)
@@ -24,10 +24,10 @@ class Bat(pg.sprite.Sprite):
         self.speed = BAT_SPEED
     
     def move(self, up=False, down=False):
-        if up:
+        if up and not self.rect.top <= 0:
+                self.rect.move_ip(0, -self.speed)
+        if down and not self.rect.bottom >= SCREEN_SIZE[1]:
             self.rect.move_ip(0, self.speed)
-        if down:
-            self.rect.move_ip(0, -self.speed)
 
 class Ball(pg.sprite.Sprite):
     def __init__(self, position):
