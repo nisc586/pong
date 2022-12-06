@@ -1,4 +1,5 @@
 import pygame as pg
+from random import randint
 
 GAME_TITLE = "Pong"
 SCREEN_SIZE = (1200, 900)
@@ -9,7 +10,7 @@ BAT_SIZE = (25, 300)
 BAT_SPEED = 10
 
 BALL_SIZE = (20, 20)
-BAT_SPEED = 5
+BALL_SPEED = 7
 
 RGB_BLACK = (0, 0, 0)
 RGB_WHITE = (255, 255, 255)
@@ -37,6 +38,24 @@ class Ball(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect = pg.Rect(position,(self.image.get_width(),self.image.get_height()))
 
+        self.set_random_direction()
+
+    
+    def move(self):
+        if self.rect.top <= 0 or self.rect.bottom >= SCREEN_SIZE[1]:
+            self.movement.y = -self.movement.y
+        if self.rect.left <= 0 or self.rect.right >= SCREEN_SIZE[0]:
+            self.set_random_direction()
+            self.set_position(MIDDLE)
+        
+        self.rect.move_ip(self.movement.x, self.movement.y)
+
+    def set_position(self, position):
+        self.rect.center = position
+    
+    def set_random_direction(self):
+        self.movement = pg.math.Vector2(BALL_SPEED, 0)
+        self.movement.rotate_ip(randint(0, 360))
 
 def main():
     pg.init()
@@ -73,6 +92,8 @@ def main():
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 return
         
+        ball.move()
+
         screen.blit(background, (0, 0))
         allsprites.draw(screen)
         pg.display.flip()
