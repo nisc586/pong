@@ -31,14 +31,15 @@ class Bat(pg.sprite.Sprite):
             self.rect.move_ip(0, self.speed)
 
 class Ball(pg.sprite.Sprite):
-    def __init__(self, position):
+    def __init__(self):
         pg.sprite.Sprite.__init__(self)
+
         self.image = pg.Surface(BALL_SIZE)
         self.image.fill(RGB_WHITE)
         self.rect = self.image.get_rect()
-        self.rect = pg.Rect(position,(self.image.get_width(),self.image.get_height()))
+        self.rect = pg.Rect(MIDDLE,(self.image.get_width(),self.image.get_height()))
 
-        self.set_random_direction()
+        self.reset()
 
     
     def move(self):
@@ -49,6 +50,14 @@ class Ball(pg.sprite.Sprite):
             self.set_position(MIDDLE)
         
         self.rect.move_ip(self.movement.x, self.movement.y)
+    
+    def collide(self, bat):
+        if self.rect.colliderect(bat.rect):
+            self.movement.x = - self.movement.x
+
+    def reset(self):
+        self.set_position(MIDDLE)
+        self.set_random_direction()
 
     def set_position(self, position):
         self.rect.center = position
@@ -71,13 +80,15 @@ def main():
     background = background.convert()
     background.fill(RGB_BLACK)
 
-    ball = Ball(MIDDLE)
+    ball = Ball()
     bat_left = Bat((MARGIN, MIDDLE[1]))
     bat_right = Bat((SCREEN_SIZE[0] - MARGIN - BAT_SIZE[0], MIDDLE[1]))
 
     allsprites = pg.sprite.Group(ball, bat_left, bat_right)
 
     while True:
+        # Player input here
+        #------------------
         keys = pg.key.get_pressed()
         if keys[pg.K_w]:
             bat_left.move(up=True)
@@ -94,8 +105,14 @@ def main():
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 return
         
+        # Logical updates here
+        #---------------------
+        ball.collide(bat_left)
+        ball.collide(bat_right)
         ball.move()
 
+        # Render graphics here
+        #---------------------
         screen.blit(background, (0, 0))
         allsprites.draw(screen)
         pg.display.flip()
