@@ -1,5 +1,5 @@
 import pygame as pg
-from random import randint
+from random import randint, choice
 
 GAME_TITLE = "Pong"
 SCREEN_SIZE = (1200, 900)
@@ -7,7 +7,7 @@ MIDDLE = (600, 450)
 MARGIN = 50
 
 BAT_SIZE = (25, 300)
-BAT_SPEED = 10
+BAT_SPEED = 9
 
 BALL_SIZE = (20, 20)
 BALL_SPEED = 7
@@ -55,7 +55,9 @@ class Ball(pg.sprite.Sprite):
     
     def set_random_direction(self):
         self.movement = pg.math.Vector2(BALL_SPEED, 0)
-        self.movement.rotate_ip(randint(0, 360))
+        
+        self.movement *= choice([-1, 1])
+        self.movement.rotate_ip(randint(-60, 60))
 
 def main():
     pg.init()
