@@ -11,11 +11,11 @@ SCREEN_SIZE = Size(1200, 900)
 MIDDLE = Position(600, 450)
 MARGIN = 50
 
-BAT_SIZE = Size(25, 300)
-BAT_SPEED = 9
+BAT_SIZE = Size(15, 200)
+BAT_SPEED = 7
 
-BALL_SIZE = Size(20, 20)
-BALL_SPEED = 7
+BALL_SIZE = Size(15, 15)
+BALL_SPEED = 10
 
 TEXT_SIZE = 40
 TEXT_POSITION = Position(MIDDLE.x, 10)
@@ -36,7 +36,7 @@ class Bat(pg.sprite.Sprite):
         """Move the bat up or down, but not outside the screen"""
         if up and not self.rect.top <= 0:
                 self.rect.move_ip(0, -self.speed)
-        if down and not self.rect.bottom >= SCREEN_SIZE.width:
+        if down and not self.rect.bottom >= SCREEN_SIZE.height:
             self.rect.move_ip(0, self.speed)
 
 
