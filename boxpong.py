@@ -19,6 +19,8 @@ DEFAULT_BALL_POSITION = (MIDDLE.x, SCREEN_SIZE.height - 100)
 BALL_SIZE = Size(10, 10)
 DEFAULT_BALL_SPEED = 5
 
+BOX_SIZE = Size(60, 20)
+
 TEXT_SIZE = 40
 TEXT_POSITION = Position(MIDDLE.x, 10)
 
@@ -47,6 +49,12 @@ class Ball(pg.sprite.Sprite):
             self.movement.x += bat.speed
             self.movement.y = -self.movement.y
     
+    def collide_box(self, box):
+        if self.rect.clipline(box.top_side) or self.rect.clipline(box.bottom_side):
+            self.movement.y = - self.movement.y
+        elif self.rect.clipline(box.left_side) or self.rect.clipline(box.right_side):
+            self.movement.x = - self.movement.x
+    
     def reset(self):
         self.rect.center = DEFAULT_BALL_POSITION
         self.movement = pg.math.Vector2((0, 0))
@@ -57,6 +65,14 @@ class Ball(pg.sprite.Sprite):
 class Box(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
+        self.image = pg.Surface(BOX_SIZE)
+        self.image.fill(RGB_WHITE)
+        self.rect = pg.Rect(MIDDLE, (self.image.get_width(), self.image.get_height()))
+        self.left_side = (self.rect.bottomleft, self.rect.topleft)
+        self.right_side = (self.rect.bottomright, self.rect.topright)
+        self.top_side = (self.rect.topleft, self.rect.topright)
+        self.bottom_side = (self.rect.bottomleft, self.rect.bottomright)
+    
 
 class Bat(pg.sprite.Sprite):
     def __init__(self):
@@ -89,8 +105,10 @@ def main():
     
     ball = Ball()
     bat = Bat()
+    box = Box()
 
     allsprites = pg.sprite.Group(ball, bat)
+    allboxes = pg.sprite.Group([box])
 
     while True:
         # Player input here
@@ -115,6 +133,12 @@ def main():
         if ball.is_outside_screen():
             ball.reset()
         
+        target_box = pg.sprite.spritecollide(ball, allboxes, dokill=True)
+        if target_box:
+            tgb = target_box[0]
+            ball.collide_box(tgb)
+            del(tgb)
+
         ball.collide(bat)
         ball.move()
 
@@ -122,6 +146,7 @@ def main():
         screen.blit(background, (0, 0))
 
         allsprites.draw(screen)
+        allboxes.draw(screen)
         pg.display.flip()
         clock.tick(60)
 
