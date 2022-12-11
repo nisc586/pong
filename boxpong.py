@@ -13,10 +13,11 @@ MARGIN = 10
 BAT_SIZE = Size(100, 20)
 MAX_BAT_SPEED = 10
 BAT_ACCELERATION = 0.75
-DEFAULT_BAT_POSITION = Position(MIDDLE.x, SCREEN_SIZE.height - BAT_SIZE.height - MARGIN)
+DEFAULT_BAT_POSITION = Position(MIDDLE.x - BAT_SIZE.width // 2, SCREEN_SIZE.height - BAT_SIZE.height - MARGIN)
 
 DEFAULT_BALL_POSITION = (MIDDLE.x, SCREEN_SIZE.height - 100)
 BALL_SIZE = Size(10, 10)
+BALL_SPEED_FACTOR = 0.5  # Multiplier for ball speed when it collides with the bat
 DEFAULT_BALL_SPEED = 5
 
 BOX_SIZE = Size(60, 20)
@@ -46,7 +47,7 @@ class Ball(pg.sprite.Sprite):
     
     def collide(self, bat):
         if self.rect.colliderect(bat.rect):
-            self.movement.x += bat.speed
+            self.movement.x += bat.speed * BALL_SPEED_FACTOR
             self.movement.y = -self.movement.y
     
     def collide_box(self, box):
