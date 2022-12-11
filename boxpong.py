@@ -29,6 +29,7 @@ TEXT_PADDING = 20
 RGB_BLACK = (0, 0, 0)
 RGB_WHITE = (255, 255, 255)
 
+
 class Ball(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
@@ -64,6 +65,7 @@ class Ball(pg.sprite.Sprite):
     def is_outside_screen(self):
         return self.rect.top >= SCREEN_SIZE.height
 
+
 class Box(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
@@ -77,6 +79,13 @@ class Box(pg.sprite.Sprite):
     
 
 class Bat(pg.sprite.Sprite):
+    """Player controlled bat to defend the ball
+    
+    - The bat moves left and right
+    - If the bat is moving while it collides with the ball, some of its speed is transfered to the ball.
+    - The bat has acceleration
+    """
+    
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface(BAT_SIZE)
@@ -99,9 +108,7 @@ class Menu():
         self.message = "Press SPACE to start the game!"
     
     def get_image(self):
-        surf = self.font.render(self.message, True, RGB_BLACK, RGB_WHITE)
-        padded_surf = surf# pg.transform.scale(surf, (surf.get_width() + TEXT_PADDING, surf.get_height() + TEXT_PADDING))
-        return padded_surf
+        return self.font.render(self.message, True, RGB_BLACK, RGB_WHITE)
 
 
 def main():
@@ -129,6 +136,7 @@ def main():
 
     while True:
         # Player input here
+        #------------------
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT]:
             bat.move(left=True)
@@ -149,6 +157,7 @@ def main():
                 bat.speed = 0
         
         # Logical updates here
+        #---------------------
         if ball.is_outside_screen():
             ball.reset()
         
@@ -167,6 +176,7 @@ def main():
             allboxes.add(box)
 
         # Render graphics here
+        #---------------------
         screen.blit(background, (0, 0))
 
         if show_menu:
