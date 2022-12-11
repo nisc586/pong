@@ -10,17 +10,21 @@ SCREEN_SIZE = Size(1200, 900)
 MIDDLE = Position(600, 450)
 MARGIN = 10
 
-BAT_SIZE = Size(100, 20)
+BAT_SIZE = Size(160, 25)
 MAX_BAT_SPEED = 10
 BAT_ACCELERATION = 0.75
 DEFAULT_BAT_POSITION = Position(MIDDLE.x - BAT_SIZE.width // 2, SCREEN_SIZE.height - BAT_SIZE.height - MARGIN)
 
 DEFAULT_BALL_POSITION = (MIDDLE.x, SCREEN_SIZE.height - 100)
-BALL_SIZE = Size(10, 10)
+BALL_SIZE = Size(20, 20)
 BALL_SPEED_FACTOR = 0.5  # Multiplier for ball speed when it collides with the bat
-DEFAULT_BALL_SPEED = 5
+DEFAULT_BALL_SPEED = 7
 
-BOX_SIZE = Size(60, 20)
+BOX_SIZE = Size(120, 50)
+BOX_PADDING = 5
+N_ROW = 5
+N_COL = 5
+GRID_ANCHOR = Position(300, 300)
 
 TEXT_SIZE = 40
 TEXT_POSITION = Position(MIDDLE.x, MIDDLE.y)
@@ -67,11 +71,11 @@ class Ball(pg.sprite.Sprite):
 
 
 class Box(pg.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, position):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface(BOX_SIZE)
         self.image.fill(RGB_WHITE)
-        self.rect = pg.Rect(MIDDLE, (self.image.get_width(), self.image.get_height()))
+        self.rect = pg.Rect(position, (self.image.get_width(), self.image.get_height()))
         self.left_side = (self.rect.bottomleft, self.rect.topleft)
         self.right_side = (self.rect.bottomright, self.rect.topright)
         self.top_side = (self.rect.topleft, self.rect.topright)
@@ -125,11 +129,15 @@ def main():
     
     ball = Ball()
     bat = Bat()
-    box = Box()
     menu = Menu()
+    boxes = [
+        Box(Position(GRID_ANCHOR.x + n * (BOX_SIZE.width + BOX_PADDING), GRID_ANCHOR.y + m * (BOX_SIZE.height + BOX_PADDING)))
+        for n in range(5)
+        for m in range(5)
+    ]
 
     allsprites = pg.sprite.Group(ball, bat)
-    allboxes = pg.sprite.Group([box])
+    allboxes = pg.sprite.Group(boxes)
 
     show_menu = True
     menu_image = menu.get_image()
@@ -173,7 +181,7 @@ def main():
         if len(allboxes) == 0:
             show_menu=True
             ball.reset()
-            allboxes.add(box)
+            allboxes.add(boxes)
 
         # Render graphics here
         #---------------------
