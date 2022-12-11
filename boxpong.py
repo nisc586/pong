@@ -23,7 +23,8 @@ DEFAULT_BALL_SPEED = 5
 BOX_SIZE = Size(60, 20)
 
 TEXT_SIZE = 40
-TEXT_POSITION = Position(MIDDLE.x, 10)
+TEXT_POSITION = Position(MIDDLE.x, MIDDLE.y)
+TEXT_PADDING = 20
 
 RGB_BLACK = (0, 0, 0)
 RGB_WHITE = (255, 255, 255)
@@ -92,6 +93,17 @@ class Bat(pg.sprite.Sprite):
             self.rect.move_ip(self.speed, 0)
 
 
+class Menu():
+    def __init__(self):
+        self.font = pg.font.SysFont("corbel", TEXT_SIZE, bold=True)
+        self.message = "Press SPACE to start the game!"
+    
+    def get_image(self):
+        surf = self.font.render(self.message, True, RGB_BLACK, RGB_WHITE)
+        padded_surf = surf# pg.transform.scale(surf, (surf.get_width() + TEXT_PADDING, surf.get_height() + TEXT_PADDING))
+        return padded_surf
+
+
 def main():
     pg.init()
     screen = pg.display.set_mode(SCREEN_SIZE, pg.SCALED)
@@ -107,9 +119,13 @@ def main():
     ball = Ball()
     bat = Bat()
     box = Box()
+    menu = Menu()
 
     allsprites = pg.sprite.Group(ball, bat)
     allboxes = pg.sprite.Group([box])
+
+    show_menu = True
+    menu_image = menu.get_image()
 
     while True:
         # Player input here
@@ -125,6 +141,8 @@ def main():
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 return
             elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                if show_menu:
+                    show_menu = False
                 if ball.movement.magnitude() == 0:
                     ball.movement.y = DEFAULT_BALL_SPEED
             elif event.type == pg.KEYUP and (event.key == pg.K_LEFT or event.key == pg.K_RIGHT):
@@ -143,11 +161,21 @@ def main():
         ball.collide(bat)
         ball.move()
 
+        if len(allboxes) == 0:
+            show_menu=True
+            ball.reset()
+            allboxes.add(box)
+
         # Render graphics here
         screen.blit(background, (0, 0))
 
+        if show_menu:
+            textpos = menu_image.get_rect(centerx=TEXT_POSITION.x, y=TEXT_POSITION.y)
+            screen.blit(menu_image, textpos)
+        else:
+            allboxes.draw(screen)
+
         allsprites.draw(screen)
-        allboxes.draw(screen)
         pg.display.flip()
         clock.tick(60)
 
