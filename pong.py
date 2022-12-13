@@ -20,15 +20,15 @@ BALL_SPEED = 10
 TEXT_SIZE = 40
 TEXT_POSITION = Position(MIDDLE.x, 10)
 
-RGB_BLACK = (0, 0, 0)
-RGB_WHITE = (255, 255, 255)
+BLACK = pg.Color("black")
+WHITE = pg.Color("white")
 
 
 class Bat(pg.sprite.Sprite):
     def __init__(self, position):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface(BAT_SIZE)
-        self.image.fill(RGB_WHITE)
+        self.image.fill(WHITE)
         self.rect = pg.Rect(position, (self.image.get_width(),self.image.get_height()))
         self.speed = BAT_SPEED
     
@@ -45,7 +45,7 @@ class Ball(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
 
         self.image = pg.Surface(BALL_SIZE)
-        self.image.fill(RGB_WHITE)
+        self.image.fill(WHITE)
         self.rect = self.image.get_rect()
         self.rect = pg.Rect(MIDDLE,(self.image.get_width(),self.image.get_height()))
 
@@ -114,7 +114,7 @@ def main():
 
     background = pg.Surface(screen.get_size())
     background = background.convert()
-    background.fill(RGB_BLACK)
+    background.fill(BLACK)
 
     ball = Ball()
     bat_left = Bat((MARGIN, MIDDLE.y))
@@ -160,7 +160,7 @@ def main():
         screen.blit(background, (0, 0))
 
         font, text = scoreboard.get_text()
-        text_surface = font.render(text, True, RGB_WHITE)
+        text_surface = font.render(text, True, WHITE)
         textpos = text_surface.get_rect(centerx=TEXT_POSITION.x, y=TEXT_POSITION.y)
         screen.blit(text_surface, textpos)
 

@@ -30,15 +30,15 @@ TEXT_SIZE = 40
 TEXT_POSITION = Position(MIDDLE.x, MIDDLE.y)
 TEXT_PADDING = 20
 
-RGB_BLACK = (0, 0, 0)
-RGB_WHITE = (255, 255, 255)
+BLACK = pg.Color("black")
+WHITE = pg.Color("white")
 
 
 class Ball(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface(BALL_SIZE)
-        self.rect = pg.draw.circle(surface=self.image, color=RGB_WHITE, center=(BALL_SIZE.width // 2, BALL_SIZE.height // 2), radius=BALL_SIZE.width // 2)
+        self.rect = pg.draw.circle(surface=self.image, color=WHITE, center=(BALL_SIZE.width // 2, BALL_SIZE.height // 2), radius=BALL_SIZE.width // 2)
         self.reset()
     
     def move(self):
@@ -74,7 +74,7 @@ class Box(pg.sprite.Sprite):
     def __init__(self, position):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface(BOX_SIZE)
-        self.image.fill(RGB_WHITE)
+        self.image.fill(WHITE)
         self.rect = pg.Rect(position, (self.image.get_width(), self.image.get_height()))
         self.left_side = (self.rect.bottomleft, self.rect.topleft)
         self.right_side = (self.rect.bottomright, self.rect.topright)
@@ -93,7 +93,7 @@ class Bat(pg.sprite.Sprite):
     def __init__(self):
         pg.sprite.Sprite.__init__(self)
         self.image = pg.Surface(BAT_SIZE)
-        self.image.fill(RGB_WHITE)
+        self.image.fill(WHITE)
         self.rect = pg.Rect(DEFAULT_BAT_POSITION, (self.image.get_width(), self.image.get_height()))
         self.speed = 0
     
@@ -112,7 +112,7 @@ class Menu():
         self.message = "Press SPACE to start the game!"
     
     def get_image(self):
-        return self.font.render(self.message, True, RGB_BLACK, RGB_WHITE)
+        return self.font.render(self.message, True, BLACK, WHITE)
 
 
 def main():
@@ -125,7 +125,7 @@ def main():
 
     background = pg.Surface(screen.get_size())
     background = background.convert()
-    background.fill(RGB_BLACK)
+    background.fill(BLACK)
     
     ball = Ball()
     bat = Bat()
