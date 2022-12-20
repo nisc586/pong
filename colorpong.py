@@ -11,12 +11,12 @@ GAME_TITLE = "Boxpong"
 
 SCREEN_SIZE = Size(1200, 900)
 MIDDLE = Position(600, 450)
-MARGIN = 10
+MARGIN = 20
 
-NOZZLE_POSITION = Position(MIDDLE.x, SCREEN_SIZE.height - MARGIN)
 NOZZLE_SIZE = Size(20, 20)
-NOZZLE_RADIUS = 25
+NOZZLE_RADIUS = 50
 NOZZLE_RADIAL_SPEED = 3
+NOZZLE_POSITION = Position(MIDDLE.x, SCREEN_SIZE.height - MARGIN)
 
 BACKGROUND_COLOR = pg.Color("black")
 
@@ -44,21 +44,35 @@ class Nozzle(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
         self.ball = ball
 
+        self.anchor = pg.math.Vector2(NOZZLE_POSITION)
+        self.offset = pg.math.Vector2(0, -NOZZLE_RADIUS)
+
         self.image = pg.Surface(NOZZLE_SIZE)
-        bl = Position(0, NOZZLE_SIZE.height)
-        br = Position(NOZZLE_SIZE.width, NOZZLE_SIZE.height)
-        tip = Position(NOZZLE_SIZE.width // 2, 0)
-        self.rect = pg.draw.polygon(self.image, pg.Color("white"), [bl, br, tip])
-        self.rect.center = NOZZLE_POSITION
+        pg.draw.polygon(self.image, pg.Color("white"), 
+            [(0, NOZZLE_SIZE.height), (NOZZLE_SIZE.width, NOZZLE_SIZE.height), (NOZZLE_SIZE.width // 2, 0)])
+        self.original = self.image
+
+        self.rect = self.image.get_rect(center=self.anchor + self.offset)
+
+        self.rotation = 0
 
     def turn(self, left=False, right=False):
-        pass
+        if left:
+            self.rotation = min(self.rotation + 5, 85)
+        elif right:
+            self.rotation = max(self.rotation - 5, -85)
+        
+        rotated_offset = self.offset.rotate(-self.rotation)
+        self.image = pg.transform.rotate(self.original, self.rotation)
+        self.rect = self.image.get_rect(center=self.anchor + rotated_offset)
+
 
 
 
 def main():
     pg.init()
     screen = pg.display.set_mode(SCREEN_SIZE, pg.SCALED)
+    clock = pg.time.Clock()
 
     background = pg.Surface(screen.get_size())
     background.fill(BACKGROUND_COLOR)
@@ -69,6 +83,12 @@ def main():
     playersprites = pg.sprite.Group(nozzle)
 
     while True:
+        keys = pg.key.get_pressed()
+        if keys[pg.K_LEFT]:
+            nozzle.turn(left=True)
+        elif keys[pg.K_RIGHT]:
+            nozzle.turn(right=True)
+
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
@@ -80,6 +100,7 @@ def main():
         screen.blit(background, (0, 0))
         balls.draw(screen)
         playersprites.draw(screen)
+        clock.tick(60)
         pg.display.flip()
 
 
