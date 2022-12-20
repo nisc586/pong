@@ -7,7 +7,7 @@ from collections import namedtuple
 Position = namedtuple("Position", "x y")
 Size = namedtuple("Size", "width height")
 
-GAME_TITLE = "Boxpong"
+GAME_TITLE = "Colorpong"
 
 SCREEN_SIZE = Size(1200, 900)
 MIDDLE = Position(600, 450)
@@ -40,9 +40,8 @@ class Ball(pg.sprite.Sprite):
 
 
 class Nozzle(pg.sprite.Sprite):
-    def __init__(self, ball):
+    def __init__(self):
         pg.sprite.Sprite.__init__(self)
-        self.ball = ball
 
         self.anchor = pg.math.Vector2(NOZZLE_POSITION)
         self.offset = pg.math.Vector2(0, -NOZZLE_RADIUS)
@@ -65,6 +64,10 @@ class Nozzle(pg.sprite.Sprite):
         rotated_offset = self.offset.rotate(-self.rotation)
         self.image = pg.transform.rotate(self.original, self.rotation)
         self.rect = self.image.get_rect(center=self.anchor + rotated_offset)
+    
+
+    def shoot(self, ball):
+        ball.movement = pg.math.Vector2(0, DEFAULT_BALL_SPEED).rotate(-self.rotation)
 
 
 
@@ -79,8 +82,9 @@ def main():
 
     positions_x = [100, 150, 200, 250, 300,  350]
     balls = pg.sprite.Group([Ball((pos, MIDDLE.y), col) for pos, col in zip(positions_x, BALL_COLORS)])
-    nozzle = Nozzle(None)
-    playersprites = pg.sprite.Group(nozzle)
+    active_ball = Ball(NOZZLE_POSITION, random.choice(BALL_COLORS))
+    nozzle = Nozzle()
+    playersprites = pg.sprite.Group(nozzle, active_ball)
 
     while True:
         keys = pg.key.get_pressed()
@@ -94,6 +98,8 @@ def main():
                 return
             elif event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 return
+            elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                nozzle.shoot(active_ball)
     
         # Render graphics here
         #---------------------
