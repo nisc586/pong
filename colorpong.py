@@ -23,7 +23,7 @@ BACKGROUND_COLOR = pg.Color("black")
 
 BALL_SIZE = Size(20, 20)
 BALL_COLORS = [pg.Color(s) for s in ("red", "blue", "green", "yellow", "orange", "purple")]
-DEFAULT_BALL_SPEED = 7
+DEFAULT_BALL_SPEED = 10
 
 
 class Ball(pg.sprite.Sprite):
@@ -37,6 +37,20 @@ class Ball(pg.sprite.Sprite):
         self.image = pg.Surface(BALL_SIZE)
         self.rect = pg.draw.circle(surface=self.image, color=self.color, center=(BALL_SIZE.width // 2, BALL_SIZE.height // 2), radius=BALL_SIZE.width // 2)
         self.rect.center = position
+
+        self.movement = pg.math.Vector2(0, 0)
+    
+    def move(self):
+        if self.rect.top <= 0:
+            self.movement = pg.math.Vector2(0, 0)
+        elif self.rect.right >= SCREEN_SIZE.width:
+            self.movement.x = -self.movement.x
+        elif self.rect.left <= MARGIN:
+            self.movement.x = -self.movement.x
+        elif self.rect.bottom > SCREEN_SIZE.height:
+            raise AssertionError("Unreachable")
+        
+        self.rect.move_ip(self.movement.x, self.movement.y)
 
 
 class Nozzle(pg.sprite.Sprite):
@@ -67,7 +81,7 @@ class Nozzle(pg.sprite.Sprite):
     
 
     def shoot(self, ball):
-        ball.movement = pg.math.Vector2(0, DEFAULT_BALL_SPEED).rotate(-self.rotation)
+        ball.movement = pg.math.Vector2(0, -DEFAULT_BALL_SPEED).rotate(-self.rotation)
 
 
 
@@ -101,6 +115,10 @@ def main():
             elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 nozzle.shoot(active_ball)
     
+        # Logical updates here
+        #---------------------
+        active_ball.move()
+
         # Render graphics here
         #---------------------
         screen.blit(background, (0, 0))
