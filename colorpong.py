@@ -71,9 +71,9 @@ class Nozzle(pg.sprite.Sprite):
 
     def turn(self, left=False, right=False):
         if left:
-            self.rotation = min(self.rotation + 5, 85)
+            self.rotation = min(self.rotation + NOZZLE_RADIAL_SPEED, 80)
         elif right:
-            self.rotation = max(self.rotation - 5, -85)
+            self.rotation = max(self.rotation - NOZZLE_RADIAL_SPEED, -80)
         
         rotated_offset = self.offset.rotate(-self.rotation)
         self.image = pg.transform.rotate(self.original, self.rotation)
@@ -94,8 +94,7 @@ def main():
     background = pg.Surface(screen.get_size())
     background.fill(BACKGROUND_COLOR)
 
-    positions_x = [100, 150, 200, 250, 300,  350]
-    balls = pg.sprite.Group([Ball((pos, MIDDLE.y), col) for pos, col in zip(positions_x, BALL_COLORS)])
+    balls = pg.sprite.Group([])
     active_ball = Ball(NOZZLE_POSITION, random.choice(BALL_COLORS))
     nozzle = Nozzle()
     playersprites = pg.sprite.Group(nozzle, active_ball)
@@ -114,10 +113,15 @@ def main():
                 return
             elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 nozzle.shoot(active_ball)
+                playersprites.remove(active_ball)
+                balls.add(active_ball)
+                active_ball = Ball(NOZZLE_POSITION, random.choice(BALL_COLORS))
+                playersprites.add(active_ball)
     
         # Logical updates here
         #---------------------
-        active_ball.move()
+        for ball in balls:
+            ball.move()
 
         # Render graphics here
         #---------------------
