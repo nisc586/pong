@@ -20,11 +20,12 @@ NOZZLE_POSITION = Position(MIDDLE.x, SCREEN_SIZE.height - MARGIN)
 
 BACKGROUND_COLOR = pg.Color("black")
 
-
 BALL_SIZE = Size(30, 30)
 BALL_COLORS = [pg.Color(s) for s in ("red", "blue", "green", "yellow", "orange", "purple")]
 DEFAULT_BALL_SPEED = 10
 
+BALL_TREE_ROWS = 20
+BALL_TREE_COLS = 20
 
 class Ball(pg.sprite.Sprite):
     def __init__(self, position, color=None):
@@ -87,13 +88,28 @@ class Nozzle(pg.sprite.Sprite):
 
 class BallTree():
     def __init__(self):
-        self.group = pg.sprite.Group([])
-        for n in range(11, 0, -1):
-            left = MIDDLE.x - n * BALL_SIZE.width / 2
-            y = MARGIN + (11-n) * BALL_SIZE.height
-            for i in range(n):
-                col = random.choice(BALL_COLORS)
-                self.group.add(Ball((left + i * BALL_SIZE.width, y), col))
+        self.matrix = {}
+
+        # Add initial pyramid pattern
+        pyramid_width = 10
+        for n in range(pyramid_width):
+            for m in range(pyramid_width-n):
+                color = random.choice(BALL_COLORS)
+                pos = self.get_position(
+                    row=n,
+                    col=(BALL_TREE_COLS - pyramid_width) // 2 + m + (n // 2)
+                )
+                self.matrix[(n, m)] = Ball(pos, color)
+        
+        self.group = pg.sprite.Group(self.matrix.values())
+    
+    def get_position(self, row, col):
+        x = MIDDLE.x + (col - BALL_TREE_COLS // 2) * BALL_SIZE.width
+        # Add offset for odd rows
+        if row % 2 == 1:
+            x += BALL_SIZE.width / 2
+        y = MARGIN + row * BALL_SIZE.height
+        return x, y
 
     def add_child(self, node, lr):
         pass
