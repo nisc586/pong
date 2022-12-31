@@ -21,7 +21,7 @@ NOZZLE_POSITION = Position(MIDDLE.x, SCREEN_SIZE.height - MARGIN)
 BACKGROUND_COLOR = pg.Color("black")
 
 
-BALL_SIZE = Size(20, 20)
+BALL_SIZE = Size(30, 30)
 BALL_COLORS = [pg.Color(s) for s in ("red", "blue", "green", "yellow", "orange", "purple")]
 DEFAULT_BALL_SPEED = 10
 
@@ -41,8 +41,9 @@ class Ball(pg.sprite.Sprite):
         self.movement = pg.math.Vector2(0, 0)
     
     def move(self):
-        if self.rect.top <= 0:
+        if self.rect.top <= MARGIN:
             self.movement = pg.math.Vector2(0, 0)
+            self.rect.centery = MARGIN
         elif self.rect.right >= SCREEN_SIZE.width:
             self.movement.x = -self.movement.x
         elif self.rect.left <= MARGIN:
@@ -84,6 +85,27 @@ class Nozzle(pg.sprite.Sprite):
         ball.movement = pg.math.Vector2(0, -DEFAULT_BALL_SPEED).rotate(-self.rotation)
 
 
+class BallTree():
+    def __init__(self):
+        self.group = pg.sprite.Group([])
+        for n in range(11, 0, -1):
+            left = MIDDLE.x - n * BALL_SIZE.width / 2
+            y = MARGIN + (11-n) * BALL_SIZE.height
+            for i in range(n):
+                col = random.choice(BALL_COLORS)
+                self.group.add(Ball((left + i * BALL_SIZE.width, y), col))
+
+    def add_child(self, node, lr):
+        pass
+
+    def get_adjacent(self, node):
+        pass
+
+    def remove(self, node):
+        pass
+
+    def get_parents(self, node):
+        pass
 
 
 def main():
@@ -98,6 +120,8 @@ def main():
     active_ball = Ball(NOZZLE_POSITION, random.choice(BALL_COLORS))
     nozzle = Nozzle()
     playersprites = pg.sprite.Group(nozzle, active_ball)
+
+    ball_tree = BallTree()
 
     while True:
         keys = pg.key.get_pressed()
@@ -128,6 +152,7 @@ def main():
         screen.blit(background, (0, 0))
         balls.draw(screen)
         playersprites.draw(screen)
+        ball_tree.group.draw(screen)
         clock.tick(60)
         pg.display.flip()
 
