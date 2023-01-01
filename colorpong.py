@@ -24,8 +24,8 @@ BALL_SIZE = Size(30, 30)
 BALL_COLORS = [pg.Color(s) for s in ("red", "blue", "green", "yellow", "orange", "purple")]
 DEFAULT_BALL_SPEED = 10
 
-BALL_TREE_ROWS = SCREEN_SIZE.height * 0.75 // BALL_SIZE.height
-BALL_TREE_COLS = SCREEN_SIZE.width // BALL_SIZE.width
+BALL_GRID_ROWS = SCREEN_SIZE.height * 0.75 // BALL_SIZE.height
+BALL_GRID_COLS = SCREEN_SIZE.width // BALL_SIZE.width
 
 class Ball(pg.sprite.Sprite):
     def __init__(self, position, color=None):
@@ -97,14 +97,14 @@ class BallGrid():
                 color = random.choice(BALL_COLORS)
                 pos = self.get_position(
                     row=n,
-                    col=(BALL_TREE_COLS - pyramid_width) // 2 + m + (n // 2)
+                    col=(BALL_GRID_COLS - pyramid_width) // 2 + m + (n // 2)
                 )
                 self.matrix[(n, m)] = Ball(pos, color)
         
         self.group = pg.sprite.Group(self.matrix.values())
     
     def get_position(self, row, col):
-        x = MIDDLE.x + (col - BALL_TREE_COLS // 2) * BALL_SIZE.width
+        x = MIDDLE.x + (col - BALL_GRID_COLS // 2) * BALL_SIZE.width
         # Add offset for odd rows
         if row % 2 == 1:
             x += BALL_SIZE.width // 2
@@ -114,9 +114,9 @@ class BallGrid():
     def get_grid_position(self, x, y):
         row = (y - MARGIN) // BALL_SIZE.height
         if row % 2 == 1:
-            col = (x - MIDDLE.x - BALL_SIZE.width // 2) // BALL_SIZE.width + BALL_TREE_COLS // 2
+            col = (x - MIDDLE.x - BALL_SIZE.width // 2) // BALL_SIZE.width + BALL_GRID_COLS // 2
         else:
-            col = (x - MIDDLE.x) // BALL_SIZE.width + BALL_TREE_COLS // 2
+            col = (x - MIDDLE.x) // BALL_SIZE.width + BALL_GRID_COLS // 2
         return row, col
 
     def add_child(self, node, lr):
@@ -145,7 +145,7 @@ def main():
     nozzle = Nozzle()
     playersprites = pg.sprite.Group(nozzle, active_ball)
 
-    ball_tree = BallGrid()
+    ball_grid = BallGrid()
 
     while True:
         keys = pg.key.get_pressed()
@@ -176,7 +176,7 @@ def main():
         screen.blit(background, (0, 0))
         balls.draw(screen)
         playersprites.draw(screen)
-        ball_tree.group.draw(screen)
+        ball_grid.group.draw(screen)
         clock.tick(60)
         pg.display.flip()
 
