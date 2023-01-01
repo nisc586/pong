@@ -24,8 +24,8 @@ BALL_SIZE = Size(30, 30)
 BALL_COLORS = [pg.Color(s) for s in ("red", "blue", "green", "yellow", "orange", "purple")]
 DEFAULT_BALL_SPEED = 10
 
-BALL_TREE_ROWS = 20
-BALL_TREE_COLS = 20
+BALL_TREE_ROWS = SCREEN_SIZE.height * 0.75 // BALL_SIZE.height
+BALL_TREE_COLS = SCREEN_SIZE.width // BALL_SIZE.width
 
 class Ball(pg.sprite.Sprite):
     def __init__(self, position, color=None):
@@ -86,7 +86,7 @@ class Nozzle(pg.sprite.Sprite):
         ball.movement = pg.math.Vector2(0, -DEFAULT_BALL_SPEED).rotate(-self.rotation)
 
 
-class BallTree():
+class BallGrid():
     def __init__(self):
         self.matrix = {}
 
@@ -107,9 +107,17 @@ class BallTree():
         x = MIDDLE.x + (col - BALL_TREE_COLS // 2) * BALL_SIZE.width
         # Add offset for odd rows
         if row % 2 == 1:
-            x += BALL_SIZE.width / 2
+            x += BALL_SIZE.width // 2
         y = MARGIN + row * BALL_SIZE.height
         return x, y
+    
+    def get_grid_position(self, x, y):
+        row = (y - MARGIN) // BALL_SIZE.height
+        if row % 2 == 1:
+            col = (x - MIDDLE.x - BALL_SIZE.width // 2) // BALL_SIZE.width + BALL_TREE_COLS // 2
+        else:
+            col = (x - MIDDLE.x) // BALL_SIZE.width + BALL_TREE_COLS // 2
+        return row, col
 
     def add_child(self, node, lr):
         pass
@@ -137,7 +145,7 @@ def main():
     nozzle = Nozzle()
     playersprites = pg.sprite.Group(nozzle, active_ball)
 
-    ball_tree = BallTree()
+    ball_tree = BallGrid()
 
     while True:
         keys = pg.key.get_pressed()
