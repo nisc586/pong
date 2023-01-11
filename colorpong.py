@@ -88,6 +88,18 @@ class Nozzle(pg.sprite.Sprite):
 
 class BallGrid():
     def __init__(self):
+        n_columns = (SCREEN_SIZE.width - 2 * MARGIN) // BALL_SIZE.width
+        empty_space_left = ((SCREEN_SIZE.width - 2 * MARGIN) - n_columns * BALL_SIZE.width) / 2
+
+        self.center_points = {}
+        for i in range(int(BALL_GRID_ROWS)):
+            for j in range(n_columns):
+                x = empty_space_left + BALL_SIZE.width / 2 + j * BALL_SIZE.width
+                if i % 2 == 1:
+                    x += BALL_SIZE.width / 2
+                y = MARGIN + BALL_SIZE.height / 2 + i * BALL_SIZE.height
+                self.center_points[(i, j)] = (x, y)
+
         self.matrix = {}
 
         # Add initial pyramid pattern
@@ -95,32 +107,25 @@ class BallGrid():
         for n in range(pyramid_width):
             for m in range(pyramid_width-n):
                 color = random.choice(BALL_COLORS)
-                pos = self.get_position(
-                    row=n,
-                    col=(BALL_GRID_COLS - pyramid_width) // 2 + m + (n // 2)
-                )
-                self.matrix[(n, m)] = Ball(pos, color)
+                col =  n + (n_columns - pyramid_width)//2
+                pos = self.center_points[(m,col)]
+                self.matrix[(m, col)] = Ball(pos, color)
         
         self.group = pg.sprite.Group(self.matrix.values())
     
-    def get_position(self, row, col):
-        x = MIDDLE.x + (col - BALL_GRID_COLS // 2) * BALL_SIZE.width
-        # Add offset for odd rows
-        if row % 2 == 1:
-            x += BALL_SIZE.width // 2
-        y = MARGIN + row * BALL_SIZE.height
-        return x, y
+    @property
+    def rects(self):
+        return {
+            key: value.rect
+            for key, value in self.matrix.items()
+        }
     
-    def get_grid_position(self, x, y):
-        row = (y - MARGIN) // BALL_SIZE.height
-        if row % 2 == 1:
-            col = (x - MIDDLE.x - BALL_SIZE.width // 2) // BALL_SIZE.width + BALL_GRID_COLS // 2
-        else:
-            col = (x - MIDDLE.x) // BALL_SIZE.width + BALL_GRID_COLS // 2
-        return row, col
 
-    def add_child(self, node, lr):
-        pass
+    def add_ball(self, ball, row, col):
+        self.matrix[(row, col)] = ball
+        self.group.add(ball)
+        ball.rect.center = self.center_points[(row, col)]
+        ball.movement = pg.math.Vector2(0, 0)
 
     def get_adjacent(self, node):
         pass
@@ -130,6 +135,27 @@ class BallGrid():
 
     def get_parents(self, node):
         pass
+
+    def get_nearest_free_space(self, x, y):
+        nearest = None
+        min_distance = 1E6
+        for key, value in self.center_points.items():
+            if key not in self.matrix:
+                distance = pg.math.Vector2(x, y).distance_to(pg.math.Vector2(value))
+                if distance < min_distance:
+                    nearest = key
+                    min_distance = distance
+        return nearest
+
+    def collide(self, ball):
+        collision_params = ball.rect.collidedict(self.rects, True)
+        if collision_params:
+            x, y = ball.rect.center
+            row, col = self.get_nearest_free_space(x, y)
+            self.add_ball(ball, row, col)
+            return True
+        return False
+
 
 
 def main():
@@ -170,6 +196,16 @@ def main():
         #---------------------
         for ball in balls:
             ball.move()
+            collision_occured = ball_grid.collide(ball)
+            if collision_occured:
+                balls.remove(ball)
+            
+            if ball.rect.top <= MARGIN:
+                x, y = ball.rect.center
+                row, col = ball_grid.get_nearest_free_space(x, y)
+                ball_grid.add_ball(ball, row, col)
+                balls.remove(ball)
+            
 
         # Render graphics here
         #---------------------
