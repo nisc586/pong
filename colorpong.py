@@ -121,20 +121,46 @@ class BallGrid():
         }
     
 
-    def add_ball(self, ball, row, col):
+    def add_ball_hit(self, ball, row, col):
+        ball.rect.center = self.center_points[(row, col)]
+        ball.movement = pg.math.Vector2(0, 0)
+
+        matches = self.get_adjacent_matches(row, col, ball.color, {(row, col)})
+
+        if len(matches) >= 2:
+            for key, b in matches:
+                del self.matrix[key]
+                self.group.remove(b)
+        else:
+            self.matrix[(row, col)] = ball
+            self.group.add(ball)
+    
+    def get_adjacent_matches(self, row, col, color, seen):
+        if row % 2 == 0:
+            neighbors = [(row+1, col-1), (row+1, col), (row, col-1), (row, col+1), (row-1, col-1), (row-1, col)]
+        else:
+            neighbors = [(row+1, col), (row+1, col+1), (row, col-1), (row, col+1), (row-1, col), (row-1, col+1)]
+
+        matches = []
+        for key in neighbors:
+            if key not in self.matrix:
+                continue
+            ball = self.matrix[key]
+            if ball.color == color and key not in seen:
+                # add match to result and recursive call
+                matches.append((key, ball))
+                seen.add(key)
+                matches.extend(self.get_adjacent_matches(key[0], key[1], color, seen))
+
+        return matches
+    
+    def add_ball_miss(self, ball):
+        x, y = ball.rect.center
+        row, col = self.get_nearest_free_space(x, y)
         self.matrix[(row, col)] = ball
         self.group.add(ball)
         ball.rect.center = self.center_points[(row, col)]
         ball.movement = pg.math.Vector2(0, 0)
-
-    def get_adjacent(self, node):
-        pass
-
-    def remove(self, node):
-        pass
-
-    def get_parents(self, node):
-        pass
 
     def get_nearest_free_space(self, x, y):
         nearest = None
@@ -152,7 +178,7 @@ class BallGrid():
         if collision_params:
             x, y = ball.rect.center
             row, col = self.get_nearest_free_space(x, y)
-            self.add_ball(ball, row, col)
+            self.add_ball_hit(ball, row, col)
             return True
         return False
 
@@ -199,11 +225,8 @@ def main():
             collision_occured = ball_grid.collide(ball)
             if collision_occured:
                 balls.remove(ball)
-            
-            if ball.rect.top <= MARGIN:
-                x, y = ball.rect.center
-                row, col = ball_grid.get_nearest_free_space(x, y)
-                ball_grid.add_ball(ball, row, col)
+            elif ball.rect.top <= MARGIN:
+                ball_grid.add_ball_miss(ball)
                 balls.remove(ball)
             
 
