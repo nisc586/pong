@@ -145,10 +145,10 @@ def main():
         # Logical updates here
         #---------------------
         if ball.is_outside_screen_left():
-            scoreboard.point_left()
+            scoreboard.point_right()
             ball.reset()
         elif ball.is_outside_screen_right():
-            scoreboard.point_right()
+            scoreboard.point_left()
             ball.reset()
 
         ball.collide(bat_left)
