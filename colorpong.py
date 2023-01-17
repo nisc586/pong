@@ -134,6 +134,8 @@ class BallGrid():
         else:
             self.matrix[(row, col)] = ball
             self.group.add(ball)
+        
+        self.delete_hanging_balls()
     
     def get_adjacent_matches(self, row, col, color, seen):
         if row % 2 == 0:
@@ -146,7 +148,7 @@ class BallGrid():
             if key not in self.matrix:
                 continue
             ball = self.matrix[key]
-            if ball.color == color and key not in seen:
+            if (ball.color == color or color is None) and key not in seen:
                 # add match to result and recursive call
                 matches.append((key, ball))
                 seen.add(key)
@@ -182,8 +184,22 @@ class BallGrid():
             return True
         return False
 
+    def delete_hanging_balls(self):
+        starting_points = filter(lambda t: t[0] == 0, self.matrix)
 
-
+        not_hanging = set()
+        for row, col in starting_points:
+            not_hanging.add((row, col))
+            for elem in map(lambda t: t[0], self.get_adjacent_matches(row, col, None, {(row, col)})):
+                    not_hanging.add(elem)
+            
+        
+        items = list(self.matrix.items())
+        for key, ball in items:
+            if key not in not_hanging:
+                del self.matrix[key]
+                self.group.remove(ball)
+            
 def main():
     pg.init()
     screen = pg.display.set_mode(SCREEN_SIZE, pg.SCALED)
